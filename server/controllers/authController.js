@@ -204,7 +204,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// 3. Bulletproof Forgot Password: Generate 6-Digit OTP and Save Atomically
+// 3. Bulletproof Forgot Password: Generate 6-Digit OTP and Dispatch via Gmail SMTP
 // @route   POST /api/auth/forgot-password
 // @access  Public
 exports.forgotPassword = async (req, res) => {
@@ -217,16 +217,19 @@ exports.forgotPassword = async (req, res) => {
   const normalizedEmail = email.toLowerCase().trim();
 
   try {
+    // 1. Strict security check: verify user exists in MongoDB
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
-      return res.status(404).json({ error: 'No account found with this email address.' });
+      return res.status(404).json({
+        error: 'This email does not exist in our system. Please check your spelling or register a new account.'
+      });
     }
 
-    // 1. Generate 6-digit OTP & 10-min expiration
+    // 2. Generate 6-digit OTP and 10-minute expiry
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-    // 2. Save ATOMICALLY in MongoDB (bypasses user.save validation & password re-hash bugs)
+    // 3. Save atomically in MongoDB Atlas (bypasses password re-hash hooks)
     await User.findByIdAndUpdate(user._id, {
       $set: {
         resetPasswordOtp: otp,
@@ -234,42 +237,48 @@ exports.forgotPassword = async (req, res) => {
       }
     });
 
-    console.log(`\n======================================================`);
-    console.log(`[PASSWORD RESET OTP DISPATCHED TO ${normalizedEmail}]: ${otp}`);
-    console.log(`(Valid for 10 minutes until ${otpExpires.toLocaleTimeString()})`);
-    console.log(`======================================================\n`);
+    const smtpUser = process.env.SMTP_USER || 'mjolnirfitness3@gmail.com';
+    const smtpPass = process.env.SMTP_PASS || 'qbhyodcjetnibjsu';
 
-    // 3. Optional SMTP Dispatch with safe error boundary
-    if (nodemailer && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      try {
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS
-          }
-        });
-
-        await transporter.sendMail({
-          from: `"Chat2Excel Security" <${process.env.SMTP_USER}>`,
-          to: normalizedEmail,
-          subject: `Your Password Recovery OTP: ${otp}`,
-          text: `Hello ${user.name},\n\nYour 6-digit password recovery code for Chat2Excel is:\n\n${otp}\n\nThis OTP is valid for 10 minutes.\n\nBest regards,\nChat2Excel Team`
-        });
-      } catch (mailErr) {
-        console.warn('SMTP Mail delivery failed (check Gmail App Password):', mailErr.message);
+    // 4. Dispatch email via Gmail SMTP
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: smtpUser,
+        pass: smtpPass
       }
-    }
+    });
+
+    await transporter.sendMail({
+      from: `"Chat2Excel Security" <${smtpUser}>`,
+      to: normalizedEmail,
+      subject: `Your Password Recovery Code: ${otp}`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 28px; border: 1px solid #E2E8F0; border-radius: 16px; background-color: #ffffff;">
+          <div style="margin-bottom: 20px;">
+            <span style="font-size: 20px; font-weight: 700; color: #1E293B; letter-spacing: -0.5px;">Chat<span style="color: #2563EB;">2</span>Excel</span>
+          </div>
+          <h2 style="color: #0F172A; font-size: 18px; margin-top: 0; font-weight: 600;">Password Reset Request</h2>
+          <p style="color: #475569; font-size: 14px; line-height: 1.6;">Hello ${user.name || 'User'},</p>
+          <p style="color: #475569; font-size: 14px; line-height: 1.6;">Use the 6-digit code below to reset the password for your Chat2Excel account. This code is valid for 10 minutes:</p>
+          <div style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 18px; text-align: center; margin: 24px 0;">
+            <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #2563EB; font-family: monospace;">${otp}</span>
+          </div>
+          <p style="color: #64748B; font-size: 12px; line-height: 1.5; margin-bottom: 0;">If you did not request a password reset, no action is required; your password remains unchanged.</p>
+        </div>
+      `
+    });
 
     return res.json({
       success: true,
-      message: `A 6-digit recovery OTP has been generated for ${normalizedEmail}.`,
-      // Expose OTP in development/test environments for zero-friction testing
-      ...(process.env.NODE_ENV !== 'production' || !process.env.SMTP_USER ? { devOtp: otp } : {})
+      message: `A 6-digit recovery code has been sent to ${normalizedEmail}. Please check your inbox.`
     });
+
   } catch (err) {
-    console.error('Forgot Password Controller Error:', err);
-    return res.status(500).json({ error: 'Failed to dispatch recovery OTP. Please try again.', details: err.message });
+    console.error('Password reset email error:', err);
+    return res.status(500).json({
+      error: 'Unable to send recovery email at this moment. Please check your credentials or try again later.'
+    });
   }
 };
 
@@ -280,11 +289,11 @@ exports.resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
   if (!email || !otp || !newPassword) {
-    return res.status(400).json({ error: 'Email, 6-digit OTP, and new password are required.' });
+    return res.status(400).json({ error: 'Email, 6-digit code, and new password are required.' });
   }
 
   if (newPassword.length < 6) {
-    return res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+    return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
   }
 
   const normalizedEmail = email.toLowerCase().trim();
@@ -293,18 +302,16 @@ exports.resetPassword = async (req, res) => {
     const user = await User.findOne({
       email: normalizedEmail,
       resetPasswordOtp: otp.trim(),
-      resetPasswordOtpExpires: { $gt: new Date() } // Not expired
+      resetPasswordOtpExpires: { $gt: new Date() }
     });
 
     if (!user) {
-      return res.status(400).json({ error: 'Invalid or expired 6-digit OTP. Please request a new code.' });
+      return res.status(400).json({ error: 'Invalid or expired 6-digit code. Please request a new code.' });
     }
 
-    // Hash new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Save ATOMICALLY and clear OTP tokens
     await User.findByIdAndUpdate(user._id, {
       $set: { password: hashedPassword },
       $unset: { resetPasswordOtp: 1, resetPasswordOtpExpires: 1 }
@@ -316,7 +323,7 @@ exports.resetPassword = async (req, res) => {
     });
   } catch (err) {
     console.error('Reset Password Error:', err);
-    return res.status(500).json({ error: 'Server error resetting password', details: err.message });
+    return res.status(500).json({ error: 'Server error while resetting password.', details: err.message });
   }
 };
 
