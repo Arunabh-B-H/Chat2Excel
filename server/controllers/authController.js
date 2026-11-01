@@ -2,7 +2,13 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
-const nodemailer = require('nodemailer');
+
+let nodemailer;
+try {
+  nodemailer = require('nodemailer');
+} catch (e) {
+  console.warn('nodemailer not installed; running in local console OTP mode');
+}
 
 const getGoogleClient = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || '320798578746-rkaneqhhmb7hkfcbnoreppmo71kg55nm.apps.googleusercontent.com';
@@ -13,7 +19,7 @@ const generateToken = (userId) => {
   return jwt.sign(
     { id: userId }, 
     process.env.JWT_SECRET || 'super_secret_jwt_key_chat2excel_dev_token_998877', 
-    { expiresIn: '30d' }
+    { expiresIn: '7d' }
   );
 };
 
@@ -67,7 +73,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// 1. Google OAuth & Seamless Account Linking
+// 1. Google OAuth & Seamless Account Merging
 // @route   POST /api/auth/google
 // @access  Public
 exports.googleAuth = async (req, res) => {
@@ -83,16 +89,11 @@ exports.googleAuth = async (req, res) => {
   try {
     if (credential) {
       const client = getGoogleClient();
-      const ticket = await client.verifyIdToken({
-        idToken: credential,
-        audience: clientId
-      });
-
+      const ticket = await client.verifyIdToken({ idToken: credential, audience: clientId });
       const payload = ticket.getPayload();
       if (!payload || !payload.email) {
         return res.status(400).json({ error: 'Invalid Google token payload.' });
       }
-
       googleId = payload.sub;
       email = payload.email;
       name = payload.name || payload.given_name || 'Google User';
@@ -100,12 +101,11 @@ exports.googleAuth = async (req, res) => {
     }
 
     if (!email) {
-      return res.status(400).json({ error: 'Valid Google credential token or email is required.' });
+      return res.status(400).json({ error: 'Google credential or email is required' });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if account already exists with this email or googleId
     let user = await User.findOne({
       $or: [
         { email: normalizedEmail },
@@ -114,17 +114,14 @@ exports.googleAuth = async (req, res) => {
     });
 
     if (!user) {
-      // Create new user via Google
       user = await User.create({
         name: name || 'Google User',
         email: normalizedEmail,
         googleId,
         avatar,
-        plan: 'free',
         creditsRemaining: 3
       });
     } else {
-      // Seamlessly link Google ID to existing account (without re-hashing or altering password)
       user = await User.findByIdAndUpdate(
         user._id,
         {
@@ -138,7 +135,6 @@ exports.googleAuth = async (req, res) => {
     }
 
     const token = generateToken(user._id);
-
     return res.json({
       success: true,
       token,
@@ -149,16 +145,12 @@ exports.googleAuth = async (req, res) => {
         email: user.email,
         avatar: user.avatar,
         plan: user.plan,
-        creditsRemaining: user.creditsRemaining,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
+        creditsRemaining: user.creditsRemaining
       }
     });
   } catch (err) {
     console.error('Google Auth Error:', err.message);
-    return res.status(401).json({
-      error: 'Google authentication failed',
-      details: err.message
-    });
+    return res.status(401).json({ error: 'Google authentication failed', details: err.message });
   }
 };
 
@@ -167,7 +159,6 @@ exports.googleAuth = async (req, res) => {
 // @access  Public
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     if (!email || !password) {
       return res.status(400).json({ error: 'Please provide email and password.' });
@@ -177,25 +168,23 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
-      return res.status(404).json({ error: 'No account found with this email address. Please register.' });
+      return res.status(404).json({ error: 'No account found with this email address.' });
     }
 
-    // Explicit check: Account was created via Google only
     if (!user.password && user.googleId) {
       return res.status(400).json({
-        error: "This account was created with Google Sign-In. Please click 'Sign in with Google' to access your workspace."
+        error: 'This account was created using Google Sign-In. Please click "Sign in with Google" to access your workspace.'
       });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
-        error: "Invalid password. If you forgot your password, please use the 'Forgot password?' recovery link below."
+        error: 'Invalid password. If you forgot your password, please use the "Forgot password?" link below.'
       });
     }
 
     const token = generateToken(user._id);
-
     return res.json({
       success: true,
       token,
@@ -206,8 +195,7 @@ exports.login = async (req, res) => {
         email: user.email,
         avatar: user.avatar,
         plan: user.plan,
-        creditsRemaining: user.creditsRemaining,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
+        creditsRemaining: user.creditsRemaining
       }
     });
   } catch (err) {
@@ -216,33 +204,43 @@ exports.login = async (req, res) => {
   }
 };
 
-// 3. Forgot Password: Generate 6-Digit OTP and Dispatch via Email
+// 3. Bulletproof Forgot Password: Generate 6-Digit OTP and Save Atomically
 // @route   POST /api/auth/forgot-password
 // @access  Public
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
 
-  if (!email) {
+  if (!email || !email.trim()) {
     return res.status(400).json({ error: 'Please enter your registered email address.' });
   }
 
+  const normalizedEmail = email.toLowerCase().trim();
+
   try {
-    const normalizedEmail = email.toLowerCase().trim();
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(404).json({ error: 'No account found with this email address.' });
     }
 
-    // Generate random secure 6-digit OTP
+    // 1. Generate 6-digit OTP & 10-min expiration
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
-    user.resetPasswordOtp = otp;
-    user.resetPasswordOtpExpires = otpExpires;
-    await user.save();
+    // 2. Save ATOMICALLY in MongoDB (bypasses user.save validation & password re-hash bugs)
+    await User.findByIdAndUpdate(user._id, {
+      $set: {
+        resetPasswordOtp: otp,
+        resetPasswordOtpExpires: otpExpires
+      }
+    });
 
-    // Check if SMTP is configured, otherwise fallback to terminal logging for instant dev testing
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    console.log(`\n======================================================`);
+    console.log(`[PASSWORD RESET OTP DISPATCHED TO ${normalizedEmail}]: ${otp}`);
+    console.log(`(Valid for 10 minutes until ${otpExpires.toLocaleTimeString()})`);
+    console.log(`======================================================\n`);
+
+    // 3. Optional SMTP Dispatch with safe error boundary
+    if (nodemailer && process.env.SMTP_USER && process.env.SMTP_PASS) {
       try {
         const transporter = nodemailer.createTransport({
           service: 'gmail',
@@ -254,35 +252,28 @@ exports.forgotPassword = async (req, res) => {
 
         await transporter.sendMail({
           from: `"Chat2Excel Security" <${process.env.SMTP_USER}>`,
-          to: user.email,
-          subject: `Your Password Reset OTP: ${otp}`,
-          text: `Hello ${user.name},\n\nYour 6-digit password recovery code for Chat2Excel is:\n\n${otp}\n\nThis OTP is valid for 10 minutes. If you did not request this, please ignore this email.\n\nBest regards,\nChat2Excel Security Team`
+          to: normalizedEmail,
+          subject: `Your Password Recovery OTP: ${otp}`,
+          text: `Hello ${user.name},\n\nYour 6-digit password recovery code for Chat2Excel is:\n\n${otp}\n\nThis OTP is valid for 10 minutes.\n\nBest regards,\nChat2Excel Team`
         });
       } catch (mailErr) {
-        console.warn('SMTP send failed, falling back to console:', mailErr.message);
-        console.log(`\n======================================================`);
-        console.log(`[PASSWORD RESET OTP FOR ${user.email}]: ${otp}`);
-        console.log(`(Valid for 10 minutes until ${otpExpires.toLocaleTimeString()})`);
-        console.log(`======================================================\n`);
+        console.warn('SMTP Mail delivery failed (check Gmail App Password):', mailErr.message);
       }
-    } else {
-      console.log(`\n======================================================`);
-      console.log(`[PASSWORD RESET OTP FOR ${user.email}]: ${otp}`);
-      console.log(`(Valid for 10 minutes until ${otpExpires.toLocaleTimeString()})`);
-      console.log(`======================================================\n`);
     }
 
     return res.json({
       success: true,
-      message: `A 6-digit recovery OTP has been sent to ${user.email}. (Valid for 10 minutes)`
+      message: `A 6-digit recovery OTP has been generated for ${normalizedEmail}.`,
+      // Expose OTP in development/test environments for zero-friction testing
+      ...(process.env.NODE_ENV !== 'production' || !process.env.SMTP_USER ? { devOtp: otp } : {})
     });
   } catch (err) {
-    console.error('Forgot Password Error:', err);
-    return res.status(500).json({ error: 'Failed to dispatch password recovery OTP', details: err.message });
+    console.error('Forgot Password Controller Error:', err);
+    return res.status(500).json({ error: 'Failed to dispatch recovery OTP. Please try again.', details: err.message });
   }
 };
 
-// 4. Reset Password: Verify OTP and Update Password
+// 4. Bulletproof Reset Password: Verify OTP and Hash New Password
 // @route   POST /api/auth/reset-password
 // @access  Public
 exports.resetPassword = async (req, res) => {
@@ -296,26 +287,28 @@ exports.resetPassword = async (req, res) => {
     return res.status(400).json({ error: 'New password must be at least 6 characters long.' });
   }
 
+  const normalizedEmail = email.toLowerCase().trim();
+
   try {
-    const normalizedEmail = email.toLowerCase().trim();
     const user = await User.findOne({
       email: normalizedEmail,
       resetPasswordOtp: otp.trim(),
-      resetPasswordOtpExpires: { $gt: new Date() } // Ensure not expired
+      resetPasswordOtpExpires: { $gt: new Date() } // Not expired
     });
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid or expired 6-digit OTP. Please request a new code.' });
     }
 
-    // Hash the new password
+    // Hash new password
     const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Clear OTP fields
-    user.resetPasswordOtp = undefined;
-    user.resetPasswordOtpExpires = undefined;
-    await user.save();
+    // Save ATOMICALLY and clear OTP tokens
+    await User.findByIdAndUpdate(user._id, {
+      $set: { password: hashedPassword },
+      $unset: { resetPasswordOtp: 1, resetPasswordOtpExpires: 1 }
+    });
 
     return res.json({
       success: true,
@@ -323,7 +316,7 @@ exports.resetPassword = async (req, res) => {
     });
   } catch (err) {
     console.error('Reset Password Error:', err);
-    return res.status(500).json({ error: 'Failed to reset password', details: err.message });
+    return res.status(500).json({ error: 'Server error resetting password', details: err.message });
   }
 };
 

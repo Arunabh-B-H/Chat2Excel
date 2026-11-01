@@ -22,9 +22,12 @@ export default function ForgotPasswordModal({ isOpen, onClose, initialEmail = ''
     try {
       const res = await API.post('/auth/forgot-password', { email });
       setSuccessMsg(res.data.message);
+      if (res.data.devOtp) {
+        setOtp(res.data.devOtp); // Auto-fills test OTP immediately
+      }
       setStep(2);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send recovery OTP. Please check the email.');
+      setError(err.response?.data?.error || 'Failed to dispatch recovery OTP.');
     } finally {
       setLoading(false);
     }
