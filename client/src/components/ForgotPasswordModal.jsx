@@ -202,3 +202,4 @@ export default function ForgotPasswordModal({ isOpen, onClose, initialEmail = ''
     </div>
   );
 }
+
