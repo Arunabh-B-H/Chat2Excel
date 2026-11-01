@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+const rawBaseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const baseURL = rawBaseURL.replace(/\/+$/, '');
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+  baseURL
 });
 
 // Attach JWT token to requests if present in localStorage
@@ -16,10 +19,19 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to catch unauthorized or expired tokens
+// Response interceptor to log errors and catch unauthorized or expired tokens
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log any live API error message directly to the browser console
+    console.error(
+      '[API Error Interceptor]:',
+      error.config?.method?.toUpperCase(),
+      error.config?.url,
+      error.response?.status || 'NO_RESPONSE',
+      error.response?.data || error.message
+    );
+
     if (error.response && error.response.status === 401) {
       // Clear stale token
       localStorage.removeItem('token');
