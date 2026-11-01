@@ -14,12 +14,13 @@ const userSchema = new mongoose.Schema({
     trim: true 
   },
   password: { 
-    type: String 
+    type: String,
+    required: function() { return !this.googleId; } // Optional if user signed up with Google
   },
   googleId: { 
     type: String, 
     unique: true, 
-    sparse: true 
+    sparse: true // Allows null/undefined without duplicate key index errors
   },
   avatar: { 
     type: String 
@@ -41,6 +42,15 @@ const userSchema = new mongoose.Schema({
   subscriptionExpiresAt: { 
     type: Date 
   },
+
+  // Password Reset OTP Fields
+  resetPasswordOtp: { 
+    type: String 
+  },
+  resetPasswordOtpExpires: { 
+    type: Date 
+  },
+
   createdAt: { 
     type: Date, 
     default: Date.now 
@@ -48,4 +58,3 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('User', userSchema);
-

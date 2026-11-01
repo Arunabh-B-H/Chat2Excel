@@ -439,66 +439,70 @@ export default function WorkspacePage() {
             </div>
 
             {/* Instruction Input & Mic */}
-            <div className={`flex items-center gap-2 bg-slate-50 border rounded-2xl px-3.5 py-2 transition-all ${
+            <div className={`flex flex-col sm:flex-row sm:items-center gap-2 bg-slate-50 border rounded-2xl p-2 sm:px-3.5 sm:py-2 transition-all ${
               isVoiceRecording 
                 ? 'border-red-400 ring-2 ring-red-500/10 bg-red-50/20' 
                 : 'border-slate-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10'
             }`}>
-              {/* Animated Live Equalizer Waves inside input dock when recording */}
-              {isVoiceRecording && (
-                <div className="flex items-center gap-1.5 px-2 py-1 bg-red-100/80 border border-red-200 rounded-lg shrink-0 animate-pulse">
-                  <div className="flex items-center gap-0.5">
-                    <span className="w-0.5 h-3 bg-red-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <span className="w-0.5 h-4 bg-red-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <span className="w-0.5 h-2 bg-red-600 rounded-full animate-bounce [animation-delay:-0.4s]" />
-                    <span className="w-0.5 h-3.5 bg-red-600 rounded-full animate-bounce" />
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                {/* Animated Live Equalizer Waves inside input dock when recording */}
+                {isVoiceRecording && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 bg-red-100/80 border border-red-200 rounded-lg shrink-0 animate-pulse">
+                    <div className="flex items-center gap-0.5">
+                      <span className="w-0.5 h-3 bg-red-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-0.5 h-4 bg-red-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-0.5 h-2 bg-red-600 rounded-full animate-bounce [animation-delay:-0.4s]" />
+                      <span className="w-0.5 h-3.5 bg-red-600 rounded-full animate-bounce" />
+                    </div>
+                    <span className="text-[11px] font-bold font-mono text-red-600">Recording</span>
                   </div>
-                  <span className="text-[11px] font-bold font-mono text-red-600">Recording</span>
-                </div>
-              )}
+                )}
 
-              <input
-                type="text"
-                value={userInstructions}
-                onChange={(e) => setUserInstructions(e.target.value)}
-                placeholder={
-                  isVoiceRecording
-                    ? "Listening... speak instructions now (Click Stop when finished)"
-                    : "Instruct the AI (e.g. 'Extract customer, amount, remaining balance, and flag duplicate entries...')"
-                }
-                className="flex-1 bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none"
-              />
+                <input
+                  type="text"
+                  value={userInstructions}
+                  onChange={(e) => setUserInstructions(e.target.value)}
+                  placeholder={
+                    isVoiceRecording
+                      ? "Listening... speak instructions now (Click Stop when finished)"
+                      : "Instruct the AI (e.g. 'Extract customer, amount, remaining balance...')"
+                  }
+                  className="flex-1 bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none min-w-0"
+                />
 
-              {/* Voice Input Button */}
-              <VoiceInputButton
-                ref={voiceInputRef}
-                currentText={userInstructions}
-                onTranscript={(newText) => setUserInstructions(newText)}
-                onRecordingChange={setIsVoiceRecording}
-              />
+                {/* Voice Input Button */}
+                <VoiceInputButton
+                  ref={voiceInputRef}
+                  currentText={userInstructions}
+                  onTranscript={(newText) => setUserInstructions(newText)}
+                  onRecordingChange={setIsVoiceRecording}
+                />
+              </div>
 
-              {/* Prominent Stop button: a small square inside a circle next to Build Sheet */}
-              {isVoiceRecording && (
+              <div className="flex items-center justify-end gap-2 shrink-0">
+                {/* Prominent Stop button: a small square inside a circle next to Build Sheet */}
+                {isVoiceRecording && (
+                  <button
+                    type="button"
+                    onClick={() => voiceInputRef.current?.stopRecording()}
+                    title="Stop Recording"
+                    className="px-3.5 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs shadow-red-600/20 transition shrink-0 animate-in fade-in zoom-in-95 duration-150"
+                  >
+                    <CircleStop size={17} className="text-white shrink-0" />
+                    <span>Stop</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
-                  onClick={() => voiceInputRef.current?.stopRecording()}
-                  title="Stop Recording"
-                  className="px-3.5 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs shadow-red-600/20 transition shrink-0 animate-in fade-in zoom-in-95 duration-150"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-indigo-600/20 disabled:opacity-50 shrink-0"
                 >
-                  <CircleStop size={17} className="text-white shrink-0" />
-                  <span>Stop</span>
+                  <span>Build Sheet</span>
+                  <ArrowRight size={14} />
                 </button>
-              )}
-
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={loading}
-                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs shadow-indigo-600/20 disabled:opacity-50 shrink-0"
-              >
-                <span>Build Sheet</span>
-                <ArrowRight size={14} />
-              </button>
+              </div>
             </div>
           </div>
 

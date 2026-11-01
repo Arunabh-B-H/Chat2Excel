@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -13,6 +13,7 @@ import {
   Check 
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
+import NeoleafPreloader from '../components/NeoleafPreloader';
 
 const SAMPLE_RAW = `Customer: Alex Morgan
 Account ID: ACC-8891024
@@ -25,13 +26,28 @@ export default function LandingPage() {
   const { isAuthenticated, setPricingModalOpen } = useAuth();
   const [hoursPerDay, setHoursPerDay] = useState(2);
   const [interactiveMode, setInteractiveMode] = useState('raw'); // 'raw' or 'extracted'
+  const [showPreloader, setShowPreloader] = useState(false);
+
+  useEffect(() => {
+    // Only show curtain reveal on fresh browser session
+    const hasLoaded = sessionStorage.getItem('neoleaf_preloader_seen');
+    if (!hasLoaded) {
+      setShowPreloader(true);
+      sessionStorage.setItem('neoleaf_preloader_seen', 'true');
+    }
+  }, []);
 
   const hoursSavedWeekly = (hoursPerDay * 5 * 0.85).toFixed(0);
   const hoursSavedYearly = (hoursSavedWeekly * 50).toFixed(0);
   const estimatedCostSaved = (hoursSavedYearly * 350).toLocaleString('en-IN');
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-slate-800 flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
+    <>
+      {showPreloader && (
+        <NeoleafPreloader onComplete={() => setShowPreloader(false)} />
+      )}
+
+      <div className="min-h-screen bg-[#FBFBFA] text-slate-800 flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
       
       {/* Top Navbar */}
       <header className="h-16 px-6 border-b border-slate-200/80 bg-white/70 backdrop-blur-md flex items-center justify-between sticky top-0 z-30">
@@ -268,5 +284,6 @@ export default function LandingPage() {
         © 2026 Chat2Excel • Studio Data Entry & Financial Reconciliation
       </footer>
     </div>
+  </>
   );
 }
