@@ -1,0 +1,18 @@
+{
+  "name": "chat-to-excel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WhatsApp Chat & Screenshot to Excel & Interactive Dashboard (Decoupled MERN)",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm run server\" \"npm run client\"",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "start": "npm start --prefix server",
+    "install-all": "npm install && npm install --prefix server && npm install --prefix client",
+    "build:client": "npm run build --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
