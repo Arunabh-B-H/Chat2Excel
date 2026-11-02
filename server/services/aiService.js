@@ -393,7 +393,7 @@ Return ONLY pure, valid JSON adhering to this schema:
           headers: {
             Authorization: `Bearer ${apiKey}`,
             'HTTP-Referer': 'https://chat-to-excel.app',
-            'X-Title': 'Chat-to-Excel AI Data Specialist'
+            'X-Title': 'Chat2ExcelAI Data Specialist'
           },
           timeout: 60000
         }

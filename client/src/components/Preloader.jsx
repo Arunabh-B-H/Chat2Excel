@@ -92,7 +92,7 @@ const Preloader = ({ onFinish }) => {
           <div className="flex items-center justify-center gap-2 mb-1">
             <Sparkles className="w-5 h-5 text-[#25d366] animate-spin" style={{ animationDuration: '6s' }} />
             <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-[#25d366] to-[#00a884] bg-clip-text text-transparent">
-              Chat-to-Excel
+              Chat2ExcelAI
             </h1>
           </div>
           <p className="text-xs uppercase tracking-widest text-[#8696a0] font-medium">

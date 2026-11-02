@@ -97,7 +97,7 @@ export default function LandingPreloader({ onComplete }) {
         <div className="space-y-1.5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
             <Zap size={12} className="text-emerald-400 animate-pulse" />
-            <span>Chat-to-Excel Autonomous Specialist</span>
+            <span>Chat2ExcelAI Autonomous Specialist</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-mono">
             SYSTEM BOOT SEQUENCE

@@ -25,7 +25,7 @@ export default function SupportBotModal({ isOpen: propIsOpen, onClose: propOnClo
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! I am your Chat2Excel Support Assistant. How can I help you with your spreadsheet extractions, voice commands, or filing a support ticket today?'
+      content: 'Hello! I am your Chat2ExcelAI Support Assistant. How can I help you with your spreadsheet extractions, voice commands, or filing a support ticket today?'
     }
   ]);
   const [input, setInput] = useState('');
@@ -100,7 +100,7 @@ export default function SupportBotModal({ isOpen: propIsOpen, onClose: propOnClo
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="text-xs font-bold text-slate-900 tracking-tight">Chat2Excel Support AI</h3>
+              <h3 className="text-xs font-bold text-slate-900 tracking-tight">Chat2ExcelAI Support AI</h3>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             </div>
             <p className="text-[10px] text-slate-500 font-mono">Docked Assistant & Tickets</p>
@@ -179,7 +179,7 @@ export default function SupportBotModal({ isOpen: propIsOpen, onClose: propOnClo
       {/* Strict Anti-Leakage Guardrail Disclaimer */}
       <div className="px-3 py-1.5 bg-slate-50 border-t border-slate-100 text-[10px] text-slate-500 flex items-center gap-1.5 font-mono shrink-0">
         <ShieldCheck size={12} className="text-emerald-600 shrink-0" />
-        <span className="truncate">Chat2Excel questions & tickets only. Strict anti-leakage active.</span>
+        <span className="truncate">Chat2ExcelAI questions & tickets only. Strict anti-leakage active.</span>
       </div>
 
       {/* Chat Input Form */}

@@ -20,7 +20,7 @@ export default function Navbar() {
             <BrandLogo size="md" />
             <div className="flex flex-col">
               <span className="text-base font-bold text-slate-900 tracking-tight group-hover:text-indigo-600 transition">
-                Chat<span className="text-indigo-600">2</span>Excel
+                Chat<span className="text-indigo-600">2</span>Excel<span className="text-indigo-600">AI</span>
               </span>
               <span className="text-[10px] text-slate-400 -mt-1 font-mono">Autonomous Data Entry</span>
             </div>

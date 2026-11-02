@@ -88,7 +88,7 @@ const UploadScreenshotPage = () => {
 
     ctx.fillStyle = '#e9edef';
     ctx.font = '15px sans-serif';
-    ctx.fillText('Hi, saw your Chat-to-Excel demo!', 60, 135);
+    ctx.fillText('Hi, saw your Chat2ExcelAI demo!', 60, 135);
     ctx.fillText('Can we get pricing for 25 seats annual?', 60, 160);
 
     // Bubble 2 (Outgoing)

@@ -123,7 +123,7 @@ export const exportHtmlDashboard = (records, title = 'Data Entry Analytics Dashb
 
       <div class="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-1">
         <span id="filteredCount">Showing all ${safeRecords.length} records</span>
-        <span>Chat-to-Excel Standalone Engine</span>
+        <span>Chat2ExcelAI Standalone Engine</span>
       </div>
     </div>
   </div>

@@ -105,7 +105,7 @@ export default function PersonaOnboardingModal({ isOpen, onClose, onSelectPerson
                 What best describes your daily work?
               </h2>
               <p className="text-sm text-[#8696a0] mt-1">
-                Chat-to-Excel configures your default extraction prompts, accounting rules, and audit models based on your role.
+                Chat2ExcelAI configures your default extraction prompts, accounting rules, and audit models based on your role.
               </p>
             </div>
             <button

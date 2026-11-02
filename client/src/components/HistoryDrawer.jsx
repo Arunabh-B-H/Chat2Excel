@@ -90,7 +90,7 @@ export default function HistoryDrawer({ isOpen, onClose }) {
         {/* Drawer Header */}
         <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <span className="text-sm font-bold text-slate-900 tracking-tight">Chat2Excel Studio</span>
+            <span className="text-sm font-bold text-slate-900 tracking-tight">Chat2ExcelAI Studio</span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 font-mono">v2.0</span>
           </div>
           <button

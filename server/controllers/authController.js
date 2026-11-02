@@ -250,17 +250,17 @@ exports.forgotPassword = async (req, res) => {
     });
 
     await transporter.sendMail({
-      from: `"Chat2Excel Security" <${smtpUser}>`,
+      from: `"Chat2ExcelAI Security" <${smtpUser}>`,
       to: normalizedEmail,
       subject: `Your Password Recovery Code: ${otp}`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 28px; border: 1px solid #E2E8F0; border-radius: 16px; background-color: #ffffff;">
           <div style="margin-bottom: 20px;">
-            <span style="font-size: 20px; font-weight: 700; color: #1E293B; letter-spacing: -0.5px;">Chat<span style="color: #2563EB;">2</span>Excel</span>
+            <span style="font-size: 20px; font-weight: 700; color: #1E293B; letter-spacing: -0.5px;">Chat<span style="color: #2563EB;">2</span>Excel<span style="color: #2563EB;">AI</span></span>
           </div>
           <h2 style="color: #0F172A; font-size: 18px; margin-top: 0; font-weight: 600;">Password Reset Request</h2>
           <p style="color: #475569; font-size: 14px; line-height: 1.6;">Hello ${user.name || 'User'},</p>
-          <p style="color: #475569; font-size: 14px; line-height: 1.6;">Use the 6-digit code below to reset the password for your Chat2Excel account. This code is valid for 10 minutes:</p>
+          <p style="color: #475569; font-size: 14px; line-height: 1.6;">Use the 6-digit code below to reset the password for your Chat2ExcelAI account. This code is valid for 10 minutes:</p>
           <div style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 18px; text-align: center; margin: 24px 0;">
             <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #2563EB; font-family: monospace;">${otp}</span>
           </div>

@@ -82,7 +82,7 @@ export default function NeoleafPreloader({ onComplete }) {
           {/* Brand Name & Monospace Subtitle */}
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-sans">
-              Chat2Excel
+              Chat2ExcelAI
             </h1>
             <p className="text-xs sm:text-sm font-mono text-slate-400 tracking-wider">
               Autonomous Data Entry

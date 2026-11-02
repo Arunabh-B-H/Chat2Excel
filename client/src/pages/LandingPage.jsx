@@ -55,7 +55,7 @@ export default function LandingPage() {
           <BrandLogo size="sm" />
           <div className="flex flex-col">
             <span className="text-sm font-bold text-slate-900 tracking-tight group-hover:text-indigo-600 transition">
-              Chat2Excel
+              Chat<span className="text-indigo-600">2</span>Excel<span className="text-indigo-600">AI</span>
             </span>
             <span className="text-[10px] text-slate-400 -mt-1 font-mono">Autonomous Data Entry</span>
           </div>
@@ -319,19 +319,19 @@ export default function LandingPage() {
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
               <h3 className="font-semibold text-slate-900 text-sm sm:text-base">How do I convert WhatsApp chat to Excel for free?</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Simply export your chat from WhatsApp, paste the text into Chat2Excel, and click Build Sheet. Every new account receives 3 free trial credits to generate formatted spreadsheets instantly.
+                Simply export your chat from WhatsApp, paste the text into Chat2ExcelAI, and click Build Sheet. Every new account receives 3 free trial credits to generate formatted spreadsheets instantly.
               </p>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
               <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Can I convert screenshots and images of chats?</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Yes. Chat2Excel features multimodal vision AI that extracts accounting and tabular data directly from mobile screenshots.
+                Yes. Chat2ExcelAI features multimodal vision AI that extracts accounting and tabular data directly from mobile screenshots.
               </p>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
               <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Can I convert WhatsApp payment messages and ledger balances to Excel?</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Yes. Chat2Excel is optimized for financial messages, payment confirmations (GPay, PhonePe, Paytm, HDFC, ICICI), and customer ledger reconciliation.
+                Yes. Chat2ExcelAI is optimized for financial messages, payment confirmations (GPay, PhonePe, Paytm, HDFC, ICICI), and customer ledger reconciliation.
               </p>
             </div>
           </div>
@@ -340,7 +340,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 py-8 text-center text-xs text-slate-400 font-mono mt-auto bg-white">
-        © 2026 Chat2Excel • Studio Data Entry & Financial Reconciliation
+        © 2026 Chat2ExcelAI • Studio Data Entry & Financial Reconciliation
       </footer>
     </div>
   </>

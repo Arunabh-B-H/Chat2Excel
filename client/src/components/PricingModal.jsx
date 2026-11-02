@@ -139,7 +139,7 @@ export default function PricingModal({ isOpen: propIsOpen, onClose: propOnClose 
             key: clientKeyId,
             amount,
             currency: 'INR',
-            name: 'Chat2Excel Studio',
+            name: 'Chat2ExcelAI Studio',
             description: `${planKey === 'pro_100' ? 'Pro Plan' : 'Basic Plan'} - ₹${displayPrice}/month`,
             order_id: orderId,
             prefill: {
@@ -197,7 +197,7 @@ export default function PricingModal({ isOpen: propIsOpen, onClose: propOnClose 
 
       // Mobile Direct UPI Intent Fallback
       if (isMobile) {
-        window.location.href = `upi://pay?pa=${activeUpi}&pn=Chat2Excel&am=${displayPrice}&cu=INR&tn=Plan_${planKey}`;
+        window.location.href = `upi://pay?pa=${activeUpi}&pn=Chat2ExcelAI&am=${displayPrice}&cu=INR&tn=Plan_${planKey}`;
       }
 
       // Simulated Verification Fallback for local sandbox testing
