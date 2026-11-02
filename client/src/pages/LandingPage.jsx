@@ -94,11 +94,11 @@ export default function LandingPage() {
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight max-w-4xl mx-auto">
-          Turn messy WhatsApp messages into <span className="text-indigo-600">verified Excel spreadsheets</span>.
+          Convert WhatsApp Chat to Excel Online in Seconds
         </h1>
 
         <p className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
-          Accountants, dealerships, and operations teams waste hours manually typing customer names, payments, and balances into spreadsheets. Chat2Excel automates the entire process in seconds.
+          The fastest AI-powered tool to turn messy WhatsApp chats, forwarded payment dumps, and mobile screenshots into formatted .xlsx spreadsheets.
         </p>
 
         {/* Hero CTAs */}
@@ -274,6 +274,65 @@ export default function LandingPage() {
             <p className="text-[11px] text-slate-400">Every single week (~{hoursSavedYearly} hours/year)</p>
             <div className="pt-2 text-[11px] text-emerald-600 font-semibold border-t border-slate-200 mt-2">
               Save ~₹{estimatedCostSaved} in data entry hours
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Semantic How It Works & Search FAQ Section for Google SEO */}
+      <section className="py-16 px-4 max-w-5xl mx-auto text-slate-800 w-full">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
+            How to Convert WhatsApp Chat to Excel
+          </h2>
+          <p className="text-base text-slate-600 max-w-2xl mx-auto">
+            Three simple steps to transform messy chat exports and mobile payment screenshots into clean, structured spreadsheets.
+          </p>
+        </div>
+
+        {/* How It Works Steps */}
+        <div className="grid md:grid-cols-3 gap-6 my-10">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
+            <div className="text-indigo-600 font-bold text-lg">1. Export Chat</div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Export chat without media from WhatsApp or capture a screenshot of your messages.
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
+            <div className="text-indigo-600 font-bold text-lg">2. Paste or Upload</div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Paste your raw text or upload the image directly into our AI workspace.
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
+            <div className="text-indigo-600 font-bold text-lg">3. Download Excel (.xlsx)</div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Claude AI parses custom columns, verifies formulas, and generates your ready-to-use spreadsheet.
+            </p>
+          </div>
+        </div>
+
+        {/* Search FAQ Section */}
+        <div className="mt-14 bg-slate-50 p-7 sm:p-9 rounded-3xl border border-slate-200/90">
+          <h2 className="text-2xl font-bold mb-6 text-slate-900 text-center">Frequently Asked Questions</h2>
+          <div className="space-y-4 max-w-3xl mx-auto">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
+              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">How do I convert WhatsApp chat to Excel for free?</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Simply export your chat from WhatsApp, paste the text into Chat2Excel, and click Build Sheet. Every new account receives 3 free trial credits to generate formatted spreadsheets instantly.
+              </p>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
+              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Can I convert screenshots and images of chats?</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Yes. Chat2Excel features multimodal vision AI that extracts accounting and tabular data directly from mobile screenshots.
+              </p>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
+              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Can I convert WhatsApp payment messages and ledger balances to Excel?</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Yes. Chat2Excel is optimized for financial messages, payment confirmations (GPay, PhonePe, Paytm, HDFC, ICICI), and customer ledger reconciliation.
+              </p>
             </div>
           </div>
         </div>
