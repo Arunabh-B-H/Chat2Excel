@@ -124,7 +124,8 @@ export default function PricingModal({ isOpen: propIsOpen, onClose: propOnClose 
     setLoadingPlan(planKey);
 
     try {
-      const res = await API.post('/payments/create-order', { plan: planKey });
+      const planType = (planKey === 'pro_100' || planKey === 'pro') ? 'pro' : 'basic';
+      const res = await API.post('/payments/create-order', { plan: planKey, planType });
       const { orderId, amount, displayPrice, keyId, merchantUpi: returnedUpi } = res.data;
 
       const clientKeyId = keyId || import.meta.env.VITE_RAZORPAY_KEY_ID;
@@ -168,7 +169,9 @@ export default function PricingModal({ isOpen: propIsOpen, onClose: propOnClose 
                 const verifyRes = await API.post('/payments/verify', {
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature
+                  razorpay_signature: response.razorpay_signature,
+                  planType,
+                  plan: planKey
                 });
 
                 if (verifyRes.data.success) {

@@ -10,5 +10,6 @@ router.get('/config', getPricingConfig);
 router.use(protect);
 router.post('/create-order', createOrder);
 router.post('/verify', verifyPayment);
+router.post('/verify-payment', verifyPayment);
 
 module.exports = router;
