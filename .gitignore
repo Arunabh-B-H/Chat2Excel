@@ -33,3 +33,8 @@ logs/
 Thumbs.db
 .vscode/
 .idea/
+# Ignore large media files
+*.mp4
+*.mov
+*.avi
+Live links and screen recordings/
